@@ -3,13 +3,13 @@ from tkinter.messagebox import *
 
 
 class Notepad:
-    __root = Tk()
-
+    root = Tk()
+    root.configure(bg='black')
     # default window width and height
     __thisWidth = 300
     __thisHeight = 300
-    __thisTextArea = Text(__root)
-    __thisMenuBar = Menu(__root)
+    __thisTextArea = Text(root)
+    __thisMenuBar = Menu(root)
     __thisFileMenu = Menu(__thisMenuBar, tearoff=0)
     __thisEditMenu = Menu(__thisMenuBar, tearoff=0)
     __thisHelpMenu = Menu(__thisMenuBar, tearoff=0)
@@ -18,32 +18,33 @@ class Notepad:
     __thisScrollBar = Scrollbar(__thisTextArea)
     __file = None
 
-    def __init__(self, **kwargs):
+    def __init__(self):
 
-        # Set icon
-        try:
-            self.__root.wm_iconbitmap("Notepad.ico")
-        except:
-            pass
+        # # Set icon
+        # try:
+        #     self.root.wm_iconbitmap("ajay.ico")
+        # except:
+        #     pass
 
         # Set window size (the default is 300x300)
 
         try:
-            self.__thisWidth = kwargs['width']
+            self.__thisWidth = self.root.winfo_screenwidth()
         except KeyError:
+            # self.__thisWidth = 300
             pass
 
         try:
-            self.__thisHeight = kwargs['height']
+            self.__thisHeight = self.root.winfo_screenheight()
         except KeyError:
             pass
 
         # Set the window text
-        self.__root.title("Untitled - Notepad")
+        self.root.title("Untitled - Notepad")
 
         # Center the window
-        screenWidth = self.__root.winfo_screenwidth()
-        screenHeight = self.__root.winfo_screenheight()
+        screenWidth = self.root.winfo_screenwidth()
+        screenHeight = self.root.winfo_screenheight()
 
         # For left-alling
         left = (screenWidth / 2) - (self.__thisWidth / 2)
@@ -52,16 +53,17 @@ class Notepad:
         top = (screenHeight / 2) - (self.__thisHeight / 2)
 
         # For top and bottom
-        self.__root.geometry('%dx%d+%d+%d' % (self.__thisWidth,
-                                              self.__thisHeight,
-                                              left, top))
+        self.root.geometry('%dx%d+%d+%d' % (self.__thisWidth,
+                                            self.__thisHeight,
+                                            left, top))
 
         # To make the textarea auto resizable
-        self.__root.grid_rowconfigure(0, weight=1)
-        self.__root.grid_columnconfigure(0, weight=1)
+        self.root.grid_rowconfigure(0, weight=1)
+        self.root.grid_columnconfigure(0, weight=1)
 
         # Add controls (widget)
         self.__thisTextArea.grid(sticky=N + E + S + W)
+        self.__thisTextArea.bind('<KeyPress>', self.track_change_to_text)
 
         # To open new file
         self.__thisFileMenu.add_command(label="New",
@@ -76,7 +78,6 @@ class Notepad:
                                         command=self.__saveFile)
 
         # To create a line in the dialog
-        self.__thisFileMenu.add_separator()
         self.__thisFileMenu.add_command(label="Exit",
                                         command=self.__quitApplication)
         self.__thisMenuBar.add_cascade(label="File",
@@ -104,7 +105,7 @@ class Notepad:
         self.__thisMenuBar.add_cascade(label="Help",
                                        menu=self.__thisHelpMenu)
 
-        self.__root.config(menu=self.__thisMenuBar)
+        self.root.config(menu=self.__thisMenuBar)
 
         self.__thisScrollBar.pack(side=RIGHT, fill=Y)
 
@@ -113,12 +114,12 @@ class Notepad:
         self.__thisTextArea.config(yscrollcommand=self.__thisScrollBar.set)
 
     def __quitApplication(self):
-        self.__root.destroy()
+        self.root.destroy()
 
     # exit()
 
     def __showAbout(self):
-        showinfo("Notepad", "Akansha")
+        showinfo("Notepad", "Minor Project - Akansha")
 
     def __openFile(self):
 
@@ -134,17 +135,21 @@ class Notepad:
 
             # Try to open the file
             # set the window title
-            self.__root.title(os.path.basename(self.__file) + " - Notepad")
-            self.__thisTextArea.delete(1.0, END)
+            try:
+                self.root.title(os.path.dirname(self.__file) + " - Notepad")
 
-            file = open(self.__file, "r")
+                self.__thisTextArea.delete(1.0, END)
 
-            self.__thisTextArea.insert(1.0, file.read())
+                file = open(self.__file, "r")
 
-            file.close()
+                self.__thisTextArea.insert(1.0, file.read())
+
+                file.close()
+            except:
+                pass
 
     def __newFile(self):
-        self.__root.title("Untitled - Notepad")
+        self.root.title("Untitled - Notepad")
         self.__file = None
         self.__thisTextArea.delete(1.0, END)
 
@@ -160,15 +165,16 @@ class Notepad:
             if self.__file == "":
                 self.__file = None
             else:
+                try:
+                    # Try to save the file
+                    file = open(self.__file, "w")
+                    file.write(self.__thisTextArea.get(1.0, END))
+                    file.close()
 
-                # Try to save the file
-                file = open(self.__file, "w")
-                file.write(self.__thisTextArea.get(1.0, END))
-                file.close()
-
-                # Change the window title
-                self.__root.title(os.path.basename(self.__file) + " - Notepad")
-
+                    # Change the window title
+                    self.root.title(os.path.basename(self.__file) + " - Notepad")
+                except:
+                    pass
 
         else:
             file = open(self.__file, "w")
@@ -187,10 +193,12 @@ class Notepad:
     def run(self):
 
         # Run main application
-        self.__root.mainloop()
+        self.root.mainloop()
 
     # Run main application
+    def track_change_to_text(self):
+        self.__thisTextArea.tag_add("here", "1.0", "1.4")
+        self.__thisTextArea.tag_config("here", background="black", foreground="green")
 
-
-notepad = Notepad(width=600, height=400)
+notepad = Notepad()
 notepad.run()
