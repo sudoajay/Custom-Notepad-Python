@@ -3,8 +3,19 @@ from tkinter.messagebox import *
 
 
 class Notepad:
+
+    def left_key(self):
+        print(" key left")
+
+    def right_key(event):
+        print(" key pressed")
+
     root = Tk()
     root.configure(bg='black')
+
+    root.bind('<Enter>', left_key)
+    root.bind('<Right>', right_key)
+
     # default window width and height
     __thisWidth = 300
     __thisHeight = 300
@@ -63,7 +74,6 @@ class Notepad:
 
         # Add controls (widget)
         self.__thisTextArea.grid(sticky=N + E + S + W)
-        self.__thisTextArea.bind('<KeyPress>', self.track_change_to_text)
 
         # To open new file
         self.__thisFileMenu.add_command(label="New",
@@ -195,10 +205,7 @@ class Notepad:
         # Run main application
         self.root.mainloop()
 
-    # Run main application
-    def track_change_to_text(self):
-        self.__thisTextArea.tag_add("here", "1.0", "1.4")
-        self.__thisTextArea.tag_config("here", background="black", foreground="green")
 
 notepad = Notepad()
+
 notepad.run()
